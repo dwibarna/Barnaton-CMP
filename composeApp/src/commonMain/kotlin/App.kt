@@ -4,21 +4,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import barnaton_cmp.composeapp.generated.resources.Res
 import barnaton_cmp.composeapp.generated.resources.compose_multiplatform
+import ui.screen.home.HomeScreen
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
+/*        var showContent by remember { mutableStateOf(false) }
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Button(onClick = { showContent = !showContent }) {
                 Text("Click me!")
@@ -30,6 +36,17 @@ fun App() {
                     Text("Compose: $greeting")
                 }
             }
+        }*/
+
+
+        Scaffold(
+            modifier = Modifier
+        ) { paddingValues ->
+                    HomeScreen(
+/*                        navigateToDetail = { id ->
+                            navHostController.navigate(Screen.DetailScreen.createRoute(id))
+                        }*/
+                    )
         }
     }
 }

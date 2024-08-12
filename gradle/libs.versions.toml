@@ -26,7 +26,7 @@ insetsx = "0.1.0-alpha07"
 ktor = "2.3.11"
 kotlinx-serialization = "1.6.3"
 koin = "3.5.4"
-koinCompose = "1.0.4"
+koinCompose = "1.2.0-Beta4"
 
 uiUtil = "1.6.10"
 image-loader-version = "1.5.3"
@@ -78,6 +78,7 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-desktop = { module = "io.insert-koin:koin-desktop", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
+koin-composeVM = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinCompose" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }

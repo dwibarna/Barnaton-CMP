@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.composeVM)
             implementation(libs.image.loader)
             implementation(libs.kermit)
             implementation(libs.coil.compose)
