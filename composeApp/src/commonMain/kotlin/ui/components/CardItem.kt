@@ -7,11 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +22,6 @@ import coil3.compose.SubcomposeAsyncImage
 import domain.model.TvFavorite
 import domain.model.TvSeries
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CardItem(
     tvSeries: TvSeries,
@@ -68,22 +66,20 @@ fun CardItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.White,
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Text(
                     text = tvSeries.overview,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.White,
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
     }
 }
 
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CardItemFavorite(
     tvFavorite: TvFavorite,
@@ -128,14 +124,14 @@ fun CardItemFavorite(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.White,
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Text(
                     text = tvFavorite.overview,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.White,
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }

@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -51,7 +50,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.ui.util)
@@ -85,6 +84,8 @@ kotlin {
 
             // required by koin
             implementation("co.touchlab:stately-common:2.0.5")
+
+            implementation(libs.napier.logging)
         }
 
         iosMain.dependencies {

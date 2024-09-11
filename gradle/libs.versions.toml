@@ -40,6 +40,7 @@ sqlite = "2.5.0-SNAPSHOT"
 lifecycleViewmodelAndroid = "2.8.0"
 androidx-navigation = "2.7.0-alpha06"
 coreAnimation = "1.0.0"
+napier-log = "2.7.1"
 
 [libraries]
 androidGradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -55,9 +56,11 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso-core" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+
 compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeUiTooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "composeUiTooling" }
@@ -95,7 +98,7 @@ sqlite-bundled = { module= "androidx.sqlite:sqlite-bundled", version.ref = "sqli
 androidx-lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" }
 androidx-core-animation = { group = "androidx.core", name = "core-animation", version.ref = "coreAnimation" }
 
-
+napier-logging = {group = "io.github.aakira", name = "napier", version.ref = "napier-log"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

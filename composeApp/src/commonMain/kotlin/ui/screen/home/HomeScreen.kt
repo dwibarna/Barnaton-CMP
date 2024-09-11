@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,10 +39,11 @@ fun HomeScreen(
 //    val stateOnSearch by viewModel.uiStateOnSearch.collectAsState()
 
     var stateQuery by remember { mutableStateOf("") }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(/*midNightBlue*/ color = Color.Cyan)
+            .background(/*midNightBlue*/ color = Color.Black)
     ) {
         LazyColumn {
 /*            item {
@@ -125,7 +126,7 @@ private fun TVSeriesOnAir(
     modifier: Modifier = Modifier,
     navigateToDetail: ((Int) -> Unit)? = null
 ) {
-    HomeSection(title = /*stringResource(R.string.tv_series_on_air)*/ "CEKK") {
+    HomeSection(title = "On Air") {
         when (stateOnAir) {
             is Resource.Error -> {
                 Text(text = stateOnAir.message ?: "error tidak di ketahui"/*stringResource(R.string.error_tidak_diketahui)*/)
@@ -156,7 +157,7 @@ private fun TVSeriesTopRated(
     modifier: Modifier = Modifier,
     navigateToDetail: ((Int) -> Unit)? = null
 ) {
-    HomeSection(title = "cekkaa"/*stringResource(R.string.tv_series_top_rated)*/) {
+    HomeSection(title = "Top Rated") {
         when (stateTopRated) {
             is Resource.Error -> {
                 Text(text = stateTopRated.message ?: "error tidak d ketahui"/*stringResource(R.string.error_tidak_diketahui)*/)
@@ -187,7 +188,7 @@ private fun TvSeriesPopular(
     modifier: Modifier = Modifier,
     navigateToDetail: ((Int) -> Unit)? = null
 ) {
-    HomeSection(title = /*stringResource(R.string.tv_series_popular)*/"CEKKSS") {
+    HomeSection(title = "Popular") {
         when (statePopular) {
             is Resource.Error -> {
                 Text(text = statePopular.message ?: "error tidak di ketahui" /*stringResource(R.string.error_tidak_diketahui)*/)

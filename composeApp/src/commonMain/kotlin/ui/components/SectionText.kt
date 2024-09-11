@@ -1,8 +1,8 @@
 package ui.components
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,7 +16,7 @@ fun SectionText(
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.h1.copy(
+        style = MaterialTheme.typography.headlineSmall.copy(
             fontWeight = FontWeight.ExtraBold
         ),
         color = Color.White,

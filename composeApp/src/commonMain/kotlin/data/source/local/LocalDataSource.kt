@@ -25,5 +25,5 @@ class LocalDataSource (private val database: TvSeriesDatabase) {
 
     suspend fun deleteTvFavorite(id: Int) = database.tvFavoriteDao().deleteTvFavorite(id = id)
 
-//    fun getTvFavorite(id: Int): TvFavoriteEntity? = database.tvFavoriteDao().getTvFavorite(id = id)
+    suspend fun getTvFavorite(id: Int): TvFavoriteEntity? = database.tvFavoriteDao().getTvFavorite(id = id)
 }
