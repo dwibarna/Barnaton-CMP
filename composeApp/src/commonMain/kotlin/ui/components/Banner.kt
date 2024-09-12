@@ -39,11 +39,3 @@ fun Banner(
         )
     }
 }
-
-@Preview()
-@Composable
-fun PreviewBanner() {
-    MaterialTheme {
-        Banner()
-    }
-}

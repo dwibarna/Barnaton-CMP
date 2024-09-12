@@ -132,11 +132,7 @@ class TvSeriesRepositoryImpl(
             }
 
             override suspend fun createCall(): Flow<Result<TvSeriesResponse, NetworkError>> {
-                return flow {
-                    remoteDataSource.getSearchTvSeries(
-                        query = query
-                    )
-                }
+                return remoteDataSource.getSearchTvSeries(query = query)
             }
 
             override suspend fun saveCallResult(data: TvSeriesResponse) {

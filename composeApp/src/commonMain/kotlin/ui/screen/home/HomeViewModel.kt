@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import data.Resource
 import domain.model.TvSeries
 import domain.usecase.TvSeriesUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,10 +32,10 @@ class HomeViewModel(
     val uiStateOnAir: StateFlow<Resource<List<TvSeries>>>
         get() = _uiStateOnAir
 
-/*    private val _uiStateOnSearch: MutableStateFlow<Resource<List<TvSeries>>> =
+    private val _uiStateOnSearch: MutableStateFlow<Resource<List<TvSeries>>> =
         MutableStateFlow(Resource.Loading())
     val uiStateOnSearch: StateFlow<Resource<List<TvSeries>>>
-        get() = _uiStateOnSearch*/
+        get() = _uiStateOnSearch
 
     fun getAllPopular() = viewModelScope.launch {
         useCase.getAllPopular().collect {
@@ -53,9 +55,9 @@ class HomeViewModel(
         }
     }
 
-/*    fun getAllOnSearch(query: String) = viewModelScope.launch {
+    fun getAllOnSearch(query: String) = viewModelScope.launch(Dispatchers.IO) {
         useCase.getSearchTvSeries(query).collect {
             _uiStateOnSearch.value = it
         }
-    }*/
+    }
 }

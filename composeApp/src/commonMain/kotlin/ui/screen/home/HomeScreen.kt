@@ -18,9 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import data.Resource
 import domain.model.TvSeries
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import org.koin.compose.koinInject
+import ui.components.Banner
 import ui.components.HomeSection
 import ui.components.TvSeriesList
+import ui.components.TvSeriesListSearch
 
 @Composable
 fun HomeScreen(
@@ -36,7 +40,7 @@ fun HomeScreen(
     val stateOnAir by viewModel.uiStateOnAir.collectAsState()
     val statePopular by viewModel.uiStatePopular.collectAsState()
     val stateTopRated by viewModel.uiStateTopRated.collectAsState()
-//    val stateOnSearch by viewModel.uiStateOnSearch.collectAsState()
+    val stateOnSearch by viewModel.uiStateOnSearch.collectAsState()
 
     var stateQuery by remember { mutableStateOf("") }
 
@@ -46,7 +50,7 @@ fun HomeScreen(
             .background(/*midNightBlue*/ color = Color.Black)
     ) {
         LazyColumn {
-/*            item {
+            item {
                 Banner(
                     onSearch = {
                         if (it.isNotBlank()) {
@@ -60,7 +64,7 @@ fun HomeScreen(
                         }
                     }
                 )
-            }*/
+            }
             if (stateQuery.isBlank()) {
                 item {
                     TVSeriesOnAir(stateOnAir = stateOnAir, navigateToDetail = navigateToDetail)
@@ -78,27 +82,27 @@ fun HomeScreen(
                     )
                 }
             } else {
-/*                item {
+                item {
                     TVSeriesOnSearch(
                         stateOnSearch = stateOnSearch,
                         navigateToDetail = navigateToDetail
                     )
-                }*/
+                }
             }
         }
     }
 }
 
-/*@Composable
+@Composable
 private fun TVSeriesOnSearch(
     stateOnSearch: Resource<List<TvSeries>>,
     modifier: Modifier = Modifier,
     navigateToDetail: ((Int) -> Unit)? = null
 ) {
-    HomeSection(title = stringResource(R.string.tv_series_on_search)) {
+    HomeSection(title = "Search Tv Series") {
         when (stateOnSearch) {
             is Resource.Error -> {
-                Text(text = stateOnSearch.message ?: stringResource(R.string.error_tidak_diketahui))
+                Text(text = stateOnSearch.message ?: "Error tidak diketahui")
             }
 
             is Resource.Loading -> {
@@ -118,7 +122,7 @@ private fun TVSeriesOnSearch(
             }
         }
     }
-}*/
+}
 
 @Composable
 private fun TVSeriesOnAir(

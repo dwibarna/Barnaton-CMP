@@ -3,6 +3,7 @@ package data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import utils.NetworkError
@@ -18,7 +19,7 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
 
     fun asFlow(): Flow<Resource<ResultType>> = flow {
         emit(Resource.Loading())
-        when (val apiResponse = createCall().first()) {
+        when (val apiResponse = createCall().firstOrNull()) {
             is Result.Error -> {
                 emit(Resource.Error(message = apiResponse.error.toString()))
             }
@@ -30,6 +31,10 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
                         Resource.Success(it)
                     }
                 )
+            }
+
+            null -> {
+                emit(Resource.Error(message = "GAK JELAS BROO + $apiResponse"))
             }
         }
     }
