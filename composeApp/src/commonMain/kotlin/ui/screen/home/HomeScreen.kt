@@ -18,8 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import data.Resource
 import domain.model.TvSeries
-import io.github.aakira.napier.DebugAntilog
-import io.github.aakira.napier.Napier
 import org.koin.compose.koinInject
 import ui.components.Banner
 import ui.components.HomeSection

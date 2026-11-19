@@ -1,7 +1,9 @@
 package data.source.local.room
 
+import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import data.source.local.entity.TvFavoriteEntity
 import data.source.local.entity.TvSeriesEntity
 
@@ -10,15 +12,14 @@ import data.source.local.entity.TvSeriesEntity
     version = 1,
     exportSchema = false
 )
-abstract class TvSeriesDatabase : RoomDatabase(), DB {
+@ConstructedBy(TvSeriesDatabaseConstructor::class)
+abstract class TvSeriesDatabase : RoomDatabase() {
     abstract fun tvSeriesDao(): TvSeriesDao
 
     abstract fun tvFavoriteDao(): TvSeriesFavoriteDao
-
-
-    override fun clearAllTables(): Unit {}
 }
 
-interface DB {
-    fun clearAllTables(): Unit {}
+@Suppress("KotlinNoActualForExpect")
+expect object TvSeriesDatabaseConstructor : RoomDatabaseConstructor<TvSeriesDatabase> {
+    override fun initialize(): TvSeriesDatabase
 }

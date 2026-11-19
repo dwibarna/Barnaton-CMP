@@ -1,7 +1,6 @@
 package ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -49,7 +48,7 @@ fun BottomBar(
                 onClick = {
                     navHostController.navigate(it.screen.route) {
                         popUpTo(
-                            navHostController.graph.findStartDestination().id
+                            navHostController.graph.findStartDestination().route ?: Screen.Home.route
                         ) {
                             saveState = true
                         }

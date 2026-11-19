@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.savedstate.read
 import ui.components.BottomBar
 import ui.navigations.Screen
 import ui.screen.detail.DetailScreen
@@ -59,7 +60,9 @@ fun MainApp(
                     type = NavType.IntType
                 }),
             ) {
-                val id = it.arguments?.getInt("detailId") ?: 0
+                val id = it.arguments?.read {
+                    if (contains("detailId")) getInt("detailId") else 0
+                } ?: 0
                 DetailScreen(
                     id = id,
                 )

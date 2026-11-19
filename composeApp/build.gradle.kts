@@ -1,32 +1,60 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
-    kotlin("plugin.serialization")
-    //Room
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
 
-kotlin {
+val generatedAppConfigDir = layout.buildDirectory.dir("generated/appconfig/commonMain/kotlin")
 
-    sourceSets.commonMain {
-        kotlin.srcDir("build/generated/ksp/metadata")
+val generateAppConfig = tasks.register("generateAppConfig") {
+    val localPropsFile = rootProject.file("local.properties")
+    val apiKeyProvider = providers.provider {
+        val props = Properties()
+        if (localPropsFile.exists()) {
+            localPropsFile.inputStream().use { props.load(it) }
+        }
+        props.getProperty("TMDB_API_KEY") ?: System.getenv("TMDB_API_KEY") ?: ""
     }
+    inputs.property("tmdbApiKey", apiKeyProvider)
+    outputs.dir(generatedAppConfigDir)
 
+    doLast {
+        val rawKey = apiKeyProvider.get()
+        val escapedKey = rawKey.replace("\\", "\\\\").replace("\"", "\\\"")
+        val outFile = generatedAppConfigDir.get().file("utils/AppConfig.kt").asFile
+        outFile.parentFile.mkdirs()
+        outFile.writeText(
+            """
+            package utils
+
+            object AppConfig {
+                const val BASE_URL: String = "https://api.themoviedb.org/3/"
+                const val TMDB_API_KEY: String = "$escapedKey"
+            }
+            """.trimIndent() + "\n"
+        )
+    }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -37,71 +65,54 @@ kotlin {
     }
 
     sourceSets {
-
         androidMain.dependencies {
-            implementation(compose.preview)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.compose.navigation)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
-            implementation(libs.room.runtime.android)
+            implementation(libs.media3.exoplayer)
+            implementation(libs.media3.ui)
+            implementation(libs.media3.exoplayer.hls)
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.ui.util)
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.ktor.core)
-            implementation(libs.ktor.json)
-            implementation(libs.ktor.logging)
-            implementation(libs.ktor.negotiation)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
-            implementation(libs.koin.composeVM)
-            implementation(libs.image.loader)
-            implementation(libs.kermit)
-            implementation(libs.coil.compose)
-            implementation(libs.coil.compose.ktor)
-            implementation(compose.components.resources)
 
-            //Room
-            implementation(libs.room.runtime)
-            implementation(libs.sqlite.bundled)
-
-            //common viewmodel
-            implementation(libs.lifecycle.viewmodel.compose)
-
-            //navigation
-            implementation(libs.androidx.navigation.compose)
-
-            // animation
-            implementation(libs.androidx.core.animation)
-
-            // required by koin
-            implementation("co.touchlab:stately-common:2.0.5")
-
-            implementation(libs.napier.logging)
+        commonMain {
+            kotlin.srcDir(generateAppConfig)
+            dependencies {
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material3)
+                implementation(libs.compose.material.icons.core)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.components.resources)
+                implementation(libs.compose.ui.tooling.preview)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.ktor.core)
+                implementation(libs.ktor.json)
+                implementation(libs.ktor.logging)
+                implementation(libs.ktor.negotiation)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network.ktor3)
+                implementation(libs.room.runtime)
+                implementation(libs.sqlite.bundled)
+                implementation(libs.lifecycle.viewmodel.compose)
+                implementation(libs.lifecycle.runtime.compose)
+                implementation(libs.navigation.compose)
+            }
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
     }
-    task("testClasses")
 }
 
 android {
     namespace = "com.barna.barnaton"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
         applicationId = "com.barna.barnaton"
@@ -125,29 +136,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    buildFeatures {
-        compose = true
-    }
-    dependencies {
-        debugImplementation(compose.uiTooling)
-    }
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
-    implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.android)
-
-    // Room
-    add("kspCommonMainMetadata", libs.room.compiler)
+    debugImplementation(libs.compose.ui.tooling)
+    add("kspAndroid", libs.room.compiler)
+    add("kspIosArm64", libs.room.compiler)
+    add("kspIosSimulatorArm64", libs.room.compiler)
 }
-
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
-    if (name != "kspCommonMainKotlinMetadata" ) {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-}
-

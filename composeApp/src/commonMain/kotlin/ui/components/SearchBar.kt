@@ -24,34 +24,29 @@ fun CustomSearchBar(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     SearchBar(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-        query = searchQuery,
-        onQueryChange = {
-            searchQuery = it
-        },
-        onSearch = {
-            onSearch?.invoke(searchQuery)
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it },
+                onSearch = { onSearch?.invoke(searchQuery) },
+                expanded = false,
+                onExpandedChange = {},
+                placeholder = { Text(text = "Search") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
             )
         },
-        active = false,
-        onActiveChange = {
-
-        },
-        placeholder = {
-            Text(text = "Search")
-        },
+        expanded = false,
+        onExpandedChange = {},
         shape = MaterialTheme.shapes.large,
         colors = SearchBarDefaults.colors(
             containerColor = MaterialTheme.colorScheme.background
         )
-    ) {
-
-    }
+    ) {}
 }

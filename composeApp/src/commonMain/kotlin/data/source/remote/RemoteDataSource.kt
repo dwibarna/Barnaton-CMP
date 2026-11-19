@@ -2,8 +2,6 @@ package data.source.remote
 
 import data.source.remote.response.TvSeriesDetailResponse
 import data.source.remote.response.TvSeriesResponse
-import io.github.aakira.napier.DebugAntilog
-import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
