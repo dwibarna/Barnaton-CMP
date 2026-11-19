@@ -9,6 +9,7 @@ import data.source.remote.response.TvSeriesResponse
 import domain.model.TvDetailSeries
 import domain.model.TvFavorite
 import domain.model.TvSeries
+import domain.model.TvVideo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
@@ -36,6 +37,8 @@ interface TvSeriesRepository {
     suspend fun getTvFavorite(id: Int): Flow<TvFavorite>
 
     suspend fun getSearchTvSeries(query: String): Flow<Resource<List<TvSeries>>>
+
+    fun getTvVideos(id: Int): Flow<Resource<List<TvVideo>>>
 }
 
 class TvSeriesRepositoryImpl(
@@ -165,5 +168,13 @@ class TvSeriesRepositoryImpl(
             }
 
         }.asFlow()
+    }
+
+    override fun getTvVideos(id: Int): Flow<Resource<List<TvVideo>>> = flow {
+        emit(Resource.Loading())
+        when (val apiResponse = remoteDataSource.getTvVideos(id)) {
+            is Result.Error -> emit(Resource.Error(message = apiResponse.error.toString()))
+            is Result.Success -> emit(Resource.Success(DataMapper.tvVideoResponseToDomain(apiResponse.data)))
+        }
     }
 }

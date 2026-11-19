@@ -5,6 +5,7 @@ import data.repository.TvSeriesRepository
 import domain.model.TvDetailSeries
 import domain.model.TvFavorite
 import domain.model.TvSeries
+import domain.model.TvVideo
 import kotlinx.coroutines.flow.Flow
 
 interface TvSeriesUseCase {
@@ -25,6 +26,8 @@ interface TvSeriesUseCase {
     suspend fun getTvFavorite(id: Int): Flow<TvFavorite>
 
     suspend fun getSearchTvSeries(query: String): Flow<Resource<List<TvSeries>>>
+
+    fun getTvVideos(id: Int): Flow<Resource<List<TvVideo>>>
 }
 
 class TvSeriesUseCaseImpl(private val repository: TvSeriesRepository): TvSeriesUseCase {
@@ -64,5 +67,9 @@ class TvSeriesUseCaseImpl(private val repository: TvSeriesRepository): TvSeriesU
 
     override suspend fun getSearchTvSeries(query: String): Flow<Resource<List<TvSeries>>> {
         return repository.getSearchTvSeries(query = query)
+    }
+
+    override fun getTvVideos(id: Int): Flow<Resource<List<TvVideo>>> {
+        return repository.getTvVideos(id = id)
     }
 }

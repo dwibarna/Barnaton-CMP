@@ -4,9 +4,11 @@ import data.source.local.entity.TvFavoriteEntity
 import data.source.local.entity.TvSeriesEntity
 import data.source.remote.response.TvSeriesDetailResponse
 import data.source.remote.response.TvSeriesResponse
+import data.source.remote.response.TvVideoResponse
 import domain.model.TvDetailSeries
 import domain.model.TvFavorite
 import domain.model.TvSeries
+import domain.model.TvVideo
 
 object DataMapper {
     fun tvResponseToEntity(data: TvSeriesResponse, type: String): List<TvSeriesEntity> {
@@ -129,5 +131,18 @@ object DataMapper {
             name = tvFavorite?.name ?: "-",
             overview = tvFavorite?.overview ?: "-"
         )
+    }
+
+    fun tvVideoResponseToDomain(data: TvVideoResponse): List<TvVideo> {
+        return data.results.orEmpty().map { item ->
+            TvVideo(
+                id = item.id.orEmpty(),
+                name = item.name.orEmpty(),
+                key = item.key.orEmpty(),
+                site = item.site.orEmpty(),
+                type = item.type.orEmpty(),
+                official = item.official ?: false
+            )
+        }
     }
 }

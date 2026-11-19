@@ -2,6 +2,7 @@ package data.source.remote
 
 import data.source.remote.response.TvSeriesDetailResponse
 import data.source.remote.response.TvSeriesResponse
+import data.source.remote.response.TvVideoResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -53,6 +54,9 @@ class RemoteDataSource(private val httpClient: HttpClient) {
 
     suspend fun getDetailTvSeries(id: Int): Results<TvSeriesDetailResponse, NetworkError> =
         get("tv/$id")
+
+    suspend fun getTvVideos(id: Int): Results<TvVideoResponse, NetworkError> =
+        get("tv/$id/videos")
 
     fun getSearchTvSeries(query: String): Flow<Results<TvSeriesResponse, NetworkError>> = flow {
         emit(get("search/tv", mapOf("query" to query)))
