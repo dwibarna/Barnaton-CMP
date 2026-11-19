@@ -34,7 +34,7 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
             }
 
             null -> {
-                emit(Resource.Error(message = "GAK JELAS BROO + $apiResponse"))
+                emit(Resource.Error(message = "Unknown error"))
             }
         }
     }

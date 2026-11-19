@@ -45,7 +45,7 @@ fun HomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(/*midNightBlue*/ color = Color.Black)
+            .background(Color.Black)
     ) {
         LazyColumn {
             item {
@@ -131,7 +131,7 @@ private fun TVSeriesOnAir(
     HomeSection(title = "On Air") {
         when (stateOnAir) {
             is Resource.Error -> {
-                Text(text = stateOnAir.message ?: "error tidak di ketahui"/*stringResource(R.string.error_tidak_diketahui)*/)
+                Text(text = stateOnAir.message ?: "Error tidak diketahui")
             }
 
             is Resource.Loading -> {
@@ -162,7 +162,7 @@ private fun TVSeriesTopRated(
     HomeSection(title = "Top Rated") {
         when (stateTopRated) {
             is Resource.Error -> {
-                Text(text = stateTopRated.message ?: "error tidak d ketahui"/*stringResource(R.string.error_tidak_diketahui)*/)
+                Text(text = stateTopRated.message ?: "Error tidak diketahui")
             }
 
             is Resource.Loading -> {
@@ -193,7 +193,7 @@ private fun TvSeriesPopular(
     HomeSection(title = "Popular") {
         when (statePopular) {
             is Resource.Error -> {
-                Text(text = statePopular.message ?: "error tidak di ketahui" /*stringResource(R.string.error_tidak_diketahui)*/)
+                Text(text = statePopular.message ?: "Error tidak diketahui")
             }
 
             is Resource.Loading -> {

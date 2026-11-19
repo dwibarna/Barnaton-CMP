@@ -16,20 +16,14 @@ class DetailViewModel(
 
     private val _uiStateDetail: MutableStateFlow<Resource<TvDetailSeries>> =
         MutableStateFlow(Resource.Loading())
-
     val uiStateDetail: StateFlow<Resource<TvDetailSeries>> get() = _uiStateDetail
 
     private val _uiTvFavorite: MutableStateFlow<TvFavorite?> =
         MutableStateFlow(null)
-
     val uiTvFavorite: StateFlow<TvFavorite?> get() = _uiTvFavorite
 
     private val _stateItemFavorite: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val stateItemFavorite: StateFlow<Boolean> get() = _stateItemFavorite
-
-    fun getStateItemFavorite(boolean: Boolean) = viewModelScope.launch {
-        _stateItemFavorite.value = boolean
-    }
 
     fun getDetailData(id: Int) = viewModelScope.launch {
         useCase.getDetailFavorite(id = id).collect {
@@ -39,21 +33,18 @@ class DetailViewModel(
 
     fun insertTvFavorite(entity: TvFavorite) = viewModelScope.launch {
         useCase.insertTvFavorite(entity)
+        _stateItemFavorite.value = true
     }
 
     fun deleteTvFavorite(id: Int) = viewModelScope.launch {
         useCase.deleteTvFavorite(id = id)
+        _stateItemFavorite.value = false
     }
 
-    suspend fun getTvFavorite(id: Int) = viewModelScope.launch {
-        useCase.getTvFavorite(id = id).collect {
-            _uiTvFavorite.value = it
+    fun getTvFavorite(id: Int) = viewModelScope.launch {
+        useCase.getTvFavorite(id = id).collect { favorite ->
+            _uiTvFavorite.value = favorite
+            _stateItemFavorite.value = favorite.id == id
         }
-
-        /*
-        {
-        return useCase.getTvFavorite(id = id)
-    }
-         */
     }
 }

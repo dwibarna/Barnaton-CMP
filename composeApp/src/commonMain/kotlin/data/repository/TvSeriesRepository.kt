@@ -120,8 +120,8 @@ class TvSeriesRepositoryImpl(
         localDataSource.deleteTvFavorite(id)
     }
 
-    override suspend fun getTvFavorite(id: Int): Flow<TvFavorite> {
-        return flow { DataMapper.tvFavoriteEntityToDomain(localDataSource.getTvFavorite(id)) }
+    override suspend fun getTvFavorite(id: Int): Flow<TvFavorite> = flow {
+        emit(DataMapper.tvFavoriteEntityToDomain(localDataSource.getTvFavorite(id)))
     }
 
     override suspend fun getSearchTvSeries(query: String): Flow<Resource<List<TvSeries>>> {
