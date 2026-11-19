@@ -4,6 +4,7 @@ import data.repository.TvSeriesRepository
 import data.repository.TvSeriesRepositoryImpl
 import data.source.local.LocalDataSource
 import data.source.remote.RemoteDataSource
+import data.source.remote.WatchRoomSocketClient
 import domain.usecase.TvSeriesUseCase
 import domain.usecase.TvSeriesUseCaseImpl
 import io.ktor.client.HttpClient
@@ -11,6 +12,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -33,6 +35,7 @@ val networkModule = module {
                 json(json = Json { ignoreUnknownKeys = true }, contentType = ContentType.Any)
             }
             expectSuccess = true
+            install(WebSockets)
             install(Logging) {
                 level = LogLevel.HEADERS
                 logger = object : Logger {
@@ -43,6 +46,7 @@ val networkModule = module {
             }
         }
     }
+    single { WatchRoomSocketClient(get()) }
 }
 
 val repositoryModule = module {

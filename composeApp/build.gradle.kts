@@ -90,6 +90,7 @@ kotlin {
                 implementation(libs.ktor.json)
                 implementation(libs.ktor.logging)
                 implementation(libs.ktor.negotiation)
+                implementation(libs.ktor.websockets)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)

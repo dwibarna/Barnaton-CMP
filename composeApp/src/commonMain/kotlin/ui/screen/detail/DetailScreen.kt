@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,9 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import data.Resource
+import domain.model.ConnectionStatus
 import domain.model.TvDetailSeries
 import domain.model.TvFavorite
 import domain.model.TvVideo
+import domain.model.WatchRoomState
 import org.koin.compose.koinInject
 import ui.components.RatingStar
 import ui.components.TrailerSection
@@ -56,6 +61,8 @@ import ui.components.YouTubePlayer
 import ui.theme.CardSurface
 import ui.theme.Cerulean
 import ui.theme.DarkBackground
+import ui.theme.LiveGreen
+import ui.theme.StarGold
 import ui.theme.StreamRed
 import ui.theme.TextPrimary
 import ui.theme.TextSecondary
@@ -80,9 +87,15 @@ fun DetailScreen(
         viewModel.getTvVideos(id)
     }
 
+    DisposableEffect(id) {
+        viewModel.observeWatchRoom(id)
+        onDispose { viewModel.leaveWatchRoom() }
+    }
+
     val stateDetail by viewModel.uiStateDetail.collectAsState()
     val stateVideos by viewModel.uiStateVideos.collectAsState()
     val stateFavorite by viewModel.stateItemFavorite.collectAsState()
+    val watchRoomState by viewModel.watchRoomState.collectAsState()
 
     Box(modifier = modifier.fillMaxSize().background(DarkBackground)) {
         when (stateDetail) {
@@ -93,6 +106,7 @@ fun DetailScreen(
                     data = data,
                     stateVideos = stateVideos,
                     stateFavorite = stateFavorite,
+                    watchRoomState = watchRoomState,
                     onBackClick = onBackClick,
                     onToggleFavorite = { favorite ->
                         if (stateFavorite) viewModel.deleteTvFavorite(id = id)
@@ -123,6 +137,7 @@ private fun DetailContent(
     data: TvDetailSeries,
     stateVideos: Resource<List<TvVideo>>,
     stateFavorite: Boolean,
+    watchRoomState: WatchRoomState,
     onBackClick: (() -> Unit)?,
     onToggleFavorite: (TvFavorite) -> Unit
 ) {
@@ -141,7 +156,7 @@ private fun DetailContent(
             onBackClick = onBackClick,
             onClosePlayer = { activeMedia = null }
         )
-        DetailMetadata(data = data)
+        DetailMetadata(data = data, watchRoomState = watchRoomState)
         DetailActionRow(
             stateFavorite = stateFavorite,
             onToggleFavorite = { onToggleFavorite(favoriteData) },
@@ -264,7 +279,7 @@ private fun OverlayIconButton(
 }
 
 @Composable
-private fun DetailMetadata(data: TvDetailSeries) {
+private fun DetailMetadata(data: TvDetailSeries, watchRoomState: WatchRoomState) {
     Text(
         text = data.name,
         color = TextPrimary,
@@ -289,6 +304,38 @@ private fun DetailMetadata(data: TvDetailSeries) {
             text = ((data.voteAverage * 10).toInt() / 10.0).toString(),
             color = TextPrimary,
             style = MaterialTheme.typography.titleSmall
+        )
+    }
+    WatchRoomBadge(
+        state = watchRoomState,
+        modifier = Modifier.padding(top = 10.dp, start = 16.dp, end = 16.dp)
+    )
+}
+
+@Composable
+private fun WatchRoomBadge(
+    state: WatchRoomState,
+    modifier: Modifier = Modifier
+) {
+    val (dotColor, label) = when (state.status) {
+        ConnectionStatus.CONNECTED -> LiveGreen to "LIVE · ${state.viewerCount} watching"
+        ConnectionStatus.CONNECTING -> StarGold to "Connecting live room..."
+        ConnectionStatus.DISCONNECTED -> TextSecondary to "Live room offline"
+    }
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(50))
+            .background(CardSurface)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(dotColor))
+        Text(
+            text = label,
+            color = TextPrimary,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium
         )
     }
 }
