@@ -1,6 +1,7 @@
 package ui.screen.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,9 +35,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +52,7 @@ import org.koin.compose.koinInject
 import ui.components.RatingStar
 import ui.components.TrailerSection
 import ui.components.VideoPlayer
+import ui.components.YouTubePlayer
 import ui.theme.CardSurface
 import ui.theme.Cerulean
 import ui.theme.DarkBackground
@@ -57,6 +61,11 @@ import ui.theme.TextPrimary
 import ui.theme.TextSecondary
 
 private const val PREVIEW_HLS_STREAM = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+
+private sealed interface ActiveMedia {
+    data class HlsStream(val url: String) : ActiveMedia
+    data class YouTubeTrailer(val video: TvVideo) : ActiveMedia
+}
 
 @Composable
 fun DetailScreen(
@@ -117,7 +126,7 @@ private fun DetailContent(
     onBackClick: (() -> Unit)?,
     onToggleFavorite: (TvFavorite) -> Unit
 ) {
-    var activeStreamUrl by remember { mutableStateOf<String?>(null) }
+    var activeMedia by remember { mutableStateOf<ActiveMedia?>(null) }
     val favoriteData = TvFavorite(data.id, data.backdropPath, data.name, data.overview)
 
     Column(
@@ -128,20 +137,26 @@ private fun DetailContent(
         DetailHeaderMedia(
             posterPath = data.posterPath,
             title = data.name,
-            activeStreamUrl = activeStreamUrl,
+            activeMedia = activeMedia,
             onBackClick = onBackClick,
-            onClosePlayer = { activeStreamUrl = null }
+            onClosePlayer = { activeMedia = null }
         )
         DetailMetadata(data = data)
         DetailActionRow(
             stateFavorite = stateFavorite,
             onToggleFavorite = { onToggleFavorite(favoriteData) },
-            onPlayPreview = { activeStreamUrl = PREVIEW_HLS_STREAM }
+            onPlayPreview = { activeMedia = ActiveMedia.HlsStream(PREVIEW_HLS_STREAM) }
         )
         DetailOverview(overview = data.overview)
         TrailerSection(
             stateVideos = stateVideos,
-            onPlayClick = { activeStreamUrl = PREVIEW_HLS_STREAM }
+            onPlayClick = { video ->
+                activeMedia = if (video.site.equals("YouTube", ignoreCase = true) && video.key.isNotBlank()) {
+                    ActiveMedia.YouTubeTrailer(video)
+                } else {
+                    ActiveMedia.HlsStream(PREVIEW_HLS_STREAM)
+                }
+            }
         )
     }
 }
@@ -150,20 +165,12 @@ private fun DetailContent(
 private fun DetailHeaderMedia(
     posterPath: String,
     title: String,
-    activeStreamUrl: String?,
+    activeMedia: ActiveMedia?,
     onBackClick: (() -> Unit)?,
     onClosePlayer: () -> Unit
 ) {
-    if (activeStreamUrl != null) {
-        Box(modifier = Modifier.fillMaxWidth().background(Color.Black)) {
-            VideoPlayer(url = activeStreamUrl)
-            OverlayIconButton(
-                onClick = onClosePlayer,
-                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
-            ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Close Player", tint = TextPrimary)
-            }
-        }
+    if (activeMedia != null) {
+        ActiveMediaHeader(media = activeMedia, onClosePlayer = onClosePlayer)
         return
     }
 
@@ -196,6 +203,51 @@ private fun DetailHeaderMedia(
             }
         }
     }
+}
+
+@Composable
+private fun ActiveMediaHeader(
+    media: ActiveMedia,
+    onClosePlayer: () -> Unit
+) {
+    val uriHandler = LocalUriHandler.current
+    Box(modifier = Modifier.fillMaxWidth().background(Color.Black)) {
+        when (media) {
+            is ActiveMedia.HlsStream -> VideoPlayer(url = media.url)
+            is ActiveMedia.YouTubeTrailer -> YouTubePlayer(videoKey = media.video.key)
+        }
+        Row(
+            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (media is ActiveMedia.YouTubeTrailer) {
+                ExternalYouTubePill(
+                    onClick = {
+                        uriHandler.openUri("https://www.youtube.com/watch?v=${media.video.key}")
+                    }
+                )
+            }
+            OverlayIconButton(onClick = onClosePlayer) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Close Player", tint = TextPrimary)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExternalYouTubePill(onClick: () -> Unit) {
+    Text(
+        text = "YouTube",
+        color = TextPrimary,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(Color(0xCC0B0F19))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    )
 }
 
 @Composable
@@ -260,7 +312,7 @@ private fun DetailActionRow(
         ) {
             Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = TextPrimary)
             Text(
-                text = "Play Preview",
+                text = "Play HLS Stream",
                 modifier = Modifier.padding(start = 4.dp),
                 color = TextPrimary,
                 style = MaterialTheme.typography.labelMedium
