@@ -4,15 +4,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import barnaton_cmp.composeapp.generated.resources.Res
 import barnaton_cmp.composeapp.generated.resources.background_tmdb
 import org.jetbrains.compose.resources.painterResource
+import ui.theme.DarkBackground
 
 @Composable
 fun Banner(
@@ -21,14 +22,16 @@ fun Banner(
 ) {
     Column(
         modifier = modifier
-            .background(Color.White)
+            .background(DarkBackground)
             .fillMaxWidth()
     ) {
         Image(
             painter = painterResource(Res.drawable.background_tmdb),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = modifier.padding(start = 16.dp, top = 16.dp)
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .height(44.dp)
         )
         CustomSearchBar(
             onSearch = {

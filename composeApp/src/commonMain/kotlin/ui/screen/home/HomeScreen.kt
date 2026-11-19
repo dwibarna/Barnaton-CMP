@@ -2,7 +2,11 @@ package ui.screen.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -15,7 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import data.Resource
 import domain.model.TvSeries
 import org.koin.compose.koinInject
@@ -23,6 +27,8 @@ import ui.components.Banner
 import ui.components.HomeSection
 import ui.components.TvSeriesList
 import ui.components.TvSeriesListSearch
+import ui.theme.DarkBackground
+import ui.theme.TextSecondary
 
 @Composable
 fun HomeScreen(
@@ -39,178 +45,79 @@ fun HomeScreen(
     val statePopular by viewModel.uiStatePopular.collectAsState()
     val stateTopRated by viewModel.uiStateTopRated.collectAsState()
     val stateOnSearch by viewModel.uiStateOnSearch.collectAsState()
-
     var stateQuery by remember { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
-        LazyColumn {
+    Box(modifier = modifier.fillMaxSize().background(DarkBackground)) {
+        LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
             item {
                 Banner(
-                    onSearch = {
-                        if (it.isNotBlank()) {
-                            stateQuery = it
-                            viewModel.getAllOnSearch(it)
-                        } else {
-                            stateQuery = ""
-                            viewModel.getAllOnAir()
-                            viewModel.getAllPopular()
-                            viewModel.getAllTopRated()
-                        }
+                    onSearch = { query ->
+                        stateQuery = query
+                        if (query.isNotBlank()) viewModel.getAllOnSearch(query)
                     }
                 )
             }
             if (stateQuery.isBlank()) {
-                item {
-                    TVSeriesOnAir(stateOnAir = stateOnAir, navigateToDetail = navigateToDetail)
-                }
-                item {
-                    TvSeriesPopular(
-                        statePopular = statePopular,
-                        navigateToDetail = navigateToDetail
-                    )
-                }
-                item {
-                    TVSeriesTopRated(
-                        stateTopRated = stateTopRated,
-                        navigateToDetail = navigateToDetail
-                    )
-                }
+                item { SeriesSection("On Air", stateOnAir, navigateToDetail) }
+                item { SeriesSection("Popular", statePopular, navigateToDetail) }
+                item { SeriesSection("Top Rated", stateTopRated, navigateToDetail) }
             } else {
-                item {
-                    TVSeriesOnSearch(
-                        stateOnSearch = stateOnSearch,
-                        navigateToDetail = navigateToDetail
-                    )
-                }
+                item { SearchSection(stateOnSearch, navigateToDetail) }
             }
         }
     }
 }
 
 @Composable
-private fun TVSeriesOnSearch(
-    stateOnSearch: Resource<List<TvSeries>>,
-    modifier: Modifier = Modifier,
-    navigateToDetail: ((Int) -> Unit)? = null
+private fun SeriesSection(
+    title: String,
+    state: Resource<List<TvSeries>>,
+    navigateToDetail: ((Int) -> Unit)?
 ) {
-    HomeSection(title = "Search Tv Series") {
-        when (stateOnSearch) {
-            is Resource.Error -> {
-                Text(text = stateOnSearch.message ?: "Error tidak diketahui")
-            }
-
-            is Resource.Loading -> {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is Resource.Success -> {
-                TvSeriesListSearch(
-                    items = stateOnSearch.data ?: emptyList(),
-                    modifier = modifier,
-                    navigateToDetail = navigateToDetail
-                )
-            }
+    HomeSection(title = title) {
+        when (state) {
+            is Resource.Error -> SectionError(state.message)
+            is Resource.Loading -> SectionLoading()
+            is Resource.Success -> TvSeriesList(
+                items = state.data.orEmpty(),
+                navigateToDetail = navigateToDetail
+            )
         }
     }
 }
 
 @Composable
-private fun TVSeriesOnAir(
-    stateOnAir: Resource<List<TvSeries>>,
-    modifier: Modifier = Modifier,
-    navigateToDetail: ((Int) -> Unit)? = null
+private fun SearchSection(
+    state: Resource<List<TvSeries>>,
+    navigateToDetail: ((Int) -> Unit)?
 ) {
-    HomeSection(title = "On Air") {
-        when (stateOnAir) {
-            is Resource.Error -> {
-                Text(text = stateOnAir.message ?: "Error tidak diketahui")
-            }
-
-            is Resource.Loading -> {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is Resource.Success -> {
-                TvSeriesList(
-                    items = stateOnAir.data ?: emptyList(),
-                    modifier = modifier,
-                    navigateToDetail = navigateToDetail
-                )
-            }
+    HomeSection(title = "Search TV Series") {
+        when (state) {
+            is Resource.Error -> SectionError(state.message)
+            is Resource.Loading -> SectionLoading()
+            is Resource.Success -> TvSeriesListSearch(
+                items = state.data.orEmpty(),
+                navigateToDetail = navigateToDetail
+            )
         }
     }
 }
 
 @Composable
-private fun TVSeriesTopRated(
-    stateTopRated: Resource<List<TvSeries>>,
-    modifier: Modifier = Modifier,
-    navigateToDetail: ((Int) -> Unit)? = null
-) {
-    HomeSection(title = "Top Rated") {
-        when (stateTopRated) {
-            is Resource.Error -> {
-                Text(text = stateTopRated.message ?: "Error tidak diketahui")
-            }
-
-            is Resource.Loading -> {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is Resource.Success -> {
-                TvSeriesList(
-                    items = stateTopRated.data ?: emptyList(),
-                    modifier = modifier,
-                    navigateToDetail = navigateToDetail
-                )
-            }
-        }
+private fun SectionLoading() {
+    Box(
+        modifier = Modifier.fillMaxWidth().height(160.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
     }
 }
 
 @Composable
-private fun TvSeriesPopular(
-    statePopular: Resource<List<TvSeries>>,
-    modifier: Modifier = Modifier,
-    navigateToDetail: ((Int) -> Unit)? = null
-) {
-    HomeSection(title = "Popular") {
-        when (statePopular) {
-            is Resource.Error -> {
-                Text(text = statePopular.message ?: "Error tidak diketahui")
-            }
-
-            is Resource.Loading -> {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is Resource.Success -> {
-                TvSeriesList(
-                    items = statePopular.data ?: emptyList(),
-                    modifier = modifier,
-                    navigateToDetail = navigateToDetail
-                )
-            }
-        }
-    }
+private fun SectionError(message: String?) {
+    Text(
+        text = message ?: "Error tidak diketahui",
+        color = TextSecondary,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+    )
 }

@@ -35,6 +35,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import data.Resource
 import domain.model.TvVideo
+import ui.theme.CardSurface
+import ui.theme.TextPrimary
+import ui.theme.TextSecondary
 
 @Composable
 fun TrailerSection(
@@ -45,7 +48,7 @@ fun TrailerSection(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "Trailers & Clips",
-            color = Color.White,
+            color = TextPrimary,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 20.dp, start = 16.dp, bottom = 8.dp)
@@ -61,7 +64,7 @@ fun TrailerSection(
 
             is Resource.Error -> Text(
                 text = "Failed to load trailers",
-                color = Color.Gray,
+                color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, bottom = 24.dp)
             )
@@ -82,7 +85,7 @@ private fun TrailerList(
     if (videos.isEmpty()) {
         Text(
             text = "No trailers available.",
-            color = Color.Gray,
+            color = TextSecondary,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = 16.dp, bottom = 24.dp)
         )
@@ -107,7 +110,7 @@ private fun TrailerCard(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1F2B)),
+        colors = CardDefaults.cardColors(containerColor = CardSurface),
         modifier = Modifier
             .width(196.dp)
             .clickable(onClick = onClick)
@@ -117,7 +120,7 @@ private fun TrailerCard(
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
                     text = video.name,
-                    color = Color.White,
+                    color = TextPrimary,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -125,7 +128,7 @@ private fun TrailerCard(
                 )
                 Text(
                     text = video.type,
-                    color = Color.LightGray,
+                    color = TextSecondary,
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 10.sp,
                     modifier = Modifier.padding(top = 4.dp)

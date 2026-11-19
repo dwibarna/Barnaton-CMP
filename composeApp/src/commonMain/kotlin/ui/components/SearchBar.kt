@@ -1,5 +1,7 @@
 package ui.components
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -16,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ui.theme.CardSurface
+import ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +28,9 @@ fun CustomSearchBar(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     SearchBar(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         inputField = {
             SearchBarDefaults.InputField(
                 query = searchQuery,
@@ -32,21 +38,20 @@ fun CustomSearchBar(
                 onSearch = { onSearch?.invoke(searchQuery) },
                 expanded = false,
                 onExpandedChange = {},
-                placeholder = { Text(text = "Search") },
+                placeholder = { Text(text = "Search TV series", color = TextSecondary) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = TextSecondary
                     )
                 },
             )
         },
         expanded = false,
         onExpandedChange = {},
+        windowInsets = WindowInsets(0.dp),
         shape = MaterialTheme.shapes.large,
-        colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        colors = SearchBarDefaults.colors(containerColor = CardSurface)
     ) {}
 }

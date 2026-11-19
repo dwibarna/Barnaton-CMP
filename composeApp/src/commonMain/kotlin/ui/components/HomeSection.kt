@@ -11,7 +11,7 @@ fun HomeSection(
     content: @Composable () -> Unit
 ) {
     Column(modifier = modifier) {
-        SectionText(title = title, modifier = modifier)
+        SectionText(title = title)
         content()
     }
 }
