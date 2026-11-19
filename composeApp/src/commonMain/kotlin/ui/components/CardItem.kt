@@ -1,6 +1,10 @@
 package ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,8 +19,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -27,6 +34,7 @@ import coil3.compose.SubcomposeAsyncImage
 import domain.model.TvFavorite
 import domain.model.TvSeries
 import ui.theme.CardSurface
+import ui.theme.Cerulean
 import ui.theme.StarGold
 import ui.theme.TextPrimary
 import ui.theme.TextSecondary
@@ -73,6 +81,9 @@ private fun MediaBackdropCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val scale by animateFloatAsState(if (isFocused) 1.02f else 1f)
     val gradient = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color(0x88000000), Color(0xE60B0F19))
     )
@@ -80,9 +91,12 @@ private fun MediaBackdropCard(
         modifier = modifier
             .fillMaxWidth()
             .height(190.dp)
-            .padding(vertical = 6.dp, horizontal = 16.dp),
+            .padding(vertical = 6.dp, horizontal = 16.dp)
+            .scale(scale),
         shape = RoundedCornerShape(12.dp),
+        border = if (isFocused) BorderStroke(2.5.dp, Cerulean) else null,
         colors = CardDefaults.cardColors(containerColor = CardSurface),
+        interactionSource = interactionSource,
         onClick = onClick
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

@@ -1,7 +1,11 @@
 package ui.screen.detail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -271,9 +275,20 @@ private fun OverlayIconButton(
     modifier: Modifier = Modifier,
     icon: @Composable () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val borderModifier = if (isFocused) {
+        Modifier.border(2.dp, TextPrimary, RoundedCornerShape(50))
+    } else {
+        Modifier
+    }
+
     IconButton(
         onClick = onClick,
-        modifier = modifier.background(Color(0x990B0F19), shape = RoundedCornerShape(50)),
+        interactionSource = interactionSource,
+        modifier = modifier
+            .then(borderModifier)
+            .background(Color(0x990B0F19), shape = RoundedCornerShape(50)),
         content = icon
     )
 }
@@ -346,6 +361,9 @@ private fun DetailActionRow(
     onToggleFavorite: () -> Unit,
     onPlayPreview: () -> Unit
 ) {
+    val playInteraction = remember { MutableInteractionSource() }
+    val isPlayFocused by playInteraction.collectIsFocusedAsState()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -355,6 +373,8 @@ private fun DetailActionRow(
         FavoriteButton(isFavorite = stateFavorite, onClick = onToggleFavorite)
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = StreamRed),
+            border = if (isPlayFocused) BorderStroke(2.dp, TextPrimary) else null,
+            interactionSource = playInteraction,
             onClick = onPlayPreview
         ) {
             Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = TextPrimary)
@@ -370,10 +390,15 @@ private fun DetailActionRow(
 
 @Composable
 private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isFavorite) Cerulean else CardSurface
         ),
+        border = if (isFocused) BorderStroke(2.dp, TextPrimary) else null,
+        interactionSource = interactionSource,
         onClick = onClick
     ) {
         Icon(
