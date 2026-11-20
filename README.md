@@ -7,14 +7,16 @@ TV series catalog and trailer preview application built with Kotlin Multiplatfor
 - Browse TV series by category (On Air, Popular, Top Rated) from The Movie Database (TMDB) API
 - Search TV series via TMDB search endpoint
 - Offline-first caching for TV lists and local favorites using Room KMP + SQLite
-- Series detail view with official trailers and clips fetched from `/tv/{id}/videos`
-- Multiplatform video preview player via `expect`/`actual` (`Media3 ExoPlayer` on Android, `AVPlayer` on iOS)
+- Series detail view with official YouTube trailers fetched from `/tv/{id}/videos` via `expect`/`actual` `YouTubePlayer` (`WebView` on Android, `WKWebView` on iOS) and external YouTube fallback
+- Adaptive HLS video streaming via `expect`/`actual` `VideoPlayer` (`Media3 ExoPlayer` with `TextureView` and emulator decoder fallback on Android, `AVPlayer` on iOS)
+- Real-time Watch Room viewer counter over `Ktor Client WebSockets`
+- Android TV support with Leanback launcher manifest, TV banner, and D-Pad focus rings
 
 ## Tech Stack
 
 - Kotlin `2.3.20`
 - Compose Multiplatform `1.10.3` (Material 3)
-- Ktor Client `3.1.3` (`okhttp` on Android, `darwin` on iOS) + `kotlinx-serialization`
+- Ktor Client `3.1.3` (`okhttp` on Android, `darwin` on iOS, WebSockets) + `kotlinx-serialization`
 - Koin `4.2.1` (dependency injection & Compose ViewModel)
 - Room KMP `2.8.4` + `sqlite-bundled` `2.6.2`
 - Coil `3.1.0` (`coil-compose` + `coil-network-ktor3`)
@@ -30,13 +32,13 @@ Barnaton-CMP/
 │   └── src/
 │       ├── commonMain/
 │       │   └── kotlin/
-│       │       ├── data/        # Local Room DB, Remote Ktor DataSource, Repository, NetworkBoundResource
+│       │       ├── data/        # Local Room DB, Remote Ktor DataSource, WatchRoomSocketClient, Repository
 │       │       ├── di/          # Koin modules & platform expect module
-│       │       ├── domain/      # Domain models & UseCases
-│       │       ├── ui/          # Compose screens (Home, Favorite, Detail), components, expect VideoPlayer
+│       │       ├── domain/      # Domain models (incl. WatchRoomState) & UseCases
+│       │       ├── ui/          # Compose screens, D-Pad focusable cards, expect VideoPlayer & YouTubePlayer
 │       │       └── utils/       # DataMapper, NetworkError, Result
-│       ├── androidMain/         # MainActivity, Application, Room builder, Media3 VideoPlayer actual
-│       └── iosMain/             # MainViewController, Room builder, AVPlayer VideoPlayer actual
+│       ├── androidMain/         # MainActivity, Leanback manifest, Media3 VideoPlayer & WebView YouTubePlayer
+│       └── iosMain/             # MainViewController, AVPlayer VideoPlayer & WKWebView YouTubePlayer
 └── iosApp/                      # Xcode project wrapping ComposeUIViewController in SwiftUI
 ```
 
