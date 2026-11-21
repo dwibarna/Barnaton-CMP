@@ -79,7 +79,6 @@ private fun inflatePlayerView(ctx: Context, exoPlayer: ExoPlayer): PlayerView =
     (LayoutInflater.from(ctx).inflate(R.layout.view_video_player, null) as PlayerView).apply {
         player = exoPlayer
         keepScreenOn = true
-        isFocusable = true
         layoutParams = FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
