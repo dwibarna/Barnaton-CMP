@@ -2,7 +2,6 @@ package data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -17,24 +16,38 @@ abstract class NetworkBoundResource<ResultType, RequestType> {
 
     protected abstract suspend fun saveCallResult(data: RequestType)
 
+    protected open fun hasCachedData(data: ResultType?): Boolean = when (data) {
+        null -> false
+        is Collection<*> -> data.isNotEmpty()
+        else -> true
+    }
+
     fun asFlow(): Flow<Resource<ResultType>> = flow {
-        emit(Resource.Loading())
+        val cached = loadFromDB().firstOrNull()
+        if (hasCachedData(cached)) {
+            emit(Resource.Success(cached))
+        } else {
+            emit(Resource.Loading())
+        }
+
         when (val apiResponse = createCall().firstOrNull()) {
             is Result.Error -> {
-                emit(Resource.Error(message = apiResponse.error.toString()))
+                if (hasCachedData(cached)) {
+                    emitAll(loadFromDB().map { Resource.Success(it) })
+                } else {
+                    emit(Resource.Error(message = apiResponse.error.toString()))
+                }
             }
 
             is Result.Success -> {
                 saveCallResult(apiResponse.data)
-                emitAll(
-                    loadFromDB().map {
-                        Resource.Success(it)
-                    }
-                )
+                emitAll(loadFromDB().map { Resource.Success(it) })
             }
 
             null -> {
-                emit(Resource.Error(message = "Unknown error"))
+                if (!hasCachedData(cached)) {
+                    emit(Resource.Error(message = "Unknown error"))
+                }
             }
         }
     }

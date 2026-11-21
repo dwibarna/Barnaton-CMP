@@ -77,7 +77,7 @@ fun TvSeriesFavoriteList(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Belum ada TV series favorit",
+                text = "No favorite TV series yet",
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )

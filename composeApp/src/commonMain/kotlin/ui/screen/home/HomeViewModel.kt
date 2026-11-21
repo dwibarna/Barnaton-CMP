@@ -7,6 +7,7 @@ import domain.model.TvSeries
 import domain.usecase.TvSeriesUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,12 +21,10 @@ class HomeViewModel(
     val uiStatePopular: StateFlow<Resource<List<TvSeries>>>
         get() = _uiStatePopular
 
-
     private val _uiStateTopRated: MutableStateFlow<Resource<List<TvSeries>>> =
         MutableStateFlow(Resource.Loading())
     val uiStateTopRated: StateFlow<Resource<List<TvSeries>>>
         get() = _uiStateTopRated
-
 
     private val _uiStateOnAir: MutableStateFlow<Resource<List<TvSeries>>> =
         MutableStateFlow(Resource.Loading())
@@ -36,6 +35,14 @@ class HomeViewModel(
         MutableStateFlow(Resource.Loading())
     val uiStateOnSearch: StateFlow<Resource<List<TvSeries>>>
         get() = _uiStateOnSearch
+
+    private var searchJob: Job? = null
+
+    init {
+        getAllOnAir()
+        getAllPopular()
+        getAllTopRated()
+    }
 
     fun getAllPopular() = viewModelScope.launch {
         useCase.getAllPopular().collect {
@@ -55,9 +62,12 @@ class HomeViewModel(
         }
     }
 
-    fun getAllOnSearch(query: String) = viewModelScope.launch(Dispatchers.IO) {
-        useCase.getSearchTvSeries(query).collect {
-            _uiStateOnSearch.value = it
+    fun getAllOnSearch(query: String) {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch(Dispatchers.IO) {
+            useCase.getSearchTvSeries(query).collect {
+                _uiStateOnSearch.value = it
+            }
         }
     }
 }

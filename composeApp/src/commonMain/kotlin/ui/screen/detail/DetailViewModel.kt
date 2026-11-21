@@ -83,4 +83,8 @@ class DetailViewModel(
         watchRoomJob = null
         _watchRoomState.value = WatchRoomState()
     }
+
+    override fun onCleared() {
+        leaveWatchRoom()
+    }
 }

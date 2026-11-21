@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class FavoriteViewModel (
+class FavoriteViewModel(
     private val useCase: TvSeriesUseCase
 ) : ViewModel() {
 
@@ -17,6 +17,10 @@ class FavoriteViewModel (
         MutableStateFlow(Resource.Loading())
     val uiState: StateFlow<Resource<List<TvFavorite>>>
         get() = _uiState
+
+    init {
+        getAllTvFavorite()
+    }
 
     fun getAllTvFavorite() = viewModelScope.launch {
         useCase.getAllTvFavorite().collect {

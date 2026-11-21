@@ -53,7 +53,7 @@ import domain.model.TvDetailSeries
 import domain.model.TvFavorite
 import domain.model.TvVideo
 import domain.model.WatchRoomState
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import ui.components.RatingStar
 import ui.components.TrailerSection
 import ui.components.VideoPlayer
@@ -78,7 +78,7 @@ private sealed interface ActiveMedia {
 fun DetailScreen(
     modifier: Modifier = Modifier,
     id: Int = 0,
-    viewModel: DetailViewModel = koinInject(),
+    viewModel: DetailViewModel = koinViewModel(),
     onBackClick: (() -> Unit)? = null
 ) {
     LaunchedEffect(id) {
@@ -99,7 +99,7 @@ fun DetailScreen(
 
     Box(modifier = modifier.fillMaxSize().background(DarkBackground)) {
         when (stateDetail) {
-            is Resource.Error -> CenterMessage(stateDetail.message ?: "Error tidak diketahui")
+            is Resource.Error -> CenterMessage(stateDetail.message ?: "Unknown error")
             is Resource.Loading -> CenterLoader()
             is Resource.Success -> stateDetail.data?.let { data ->
                 DetailContent(
@@ -165,16 +165,17 @@ private fun DetailContent(
         DetailOverview(overview = data.overview)
         TrailerSection(
             stateVideos = stateVideos,
-            onPlayClick = { video ->
-                activeMedia = if (video.site.equals("YouTube", ignoreCase = true) && video.key.isNotBlank()) {
-                    ActiveMedia.YouTubeTrailer(video)
-                } else {
-                    ActiveMedia.HlsStream(PREVIEW_HLS_STREAM)
-                }
-            }
+            onPlayClick = { video -> activeMedia = resolveMediaSelection(video) }
         )
     }
 }
+
+private fun resolveMediaSelection(video: TvVideo): ActiveMedia =
+    if (video.site.equals("YouTube", ignoreCase = true) && video.key.isNotBlank()) {
+        ActiveMedia.YouTubeTrailer(video)
+    } else {
+        ActiveMedia.HlsStream(PREVIEW_HLS_STREAM)
+    }
 
 @Composable
 private fun DetailHeaderMedia(
@@ -382,7 +383,7 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
             tint = if (isFavorite) Color.Red else TextPrimary
         )
         Text(
-            text = if (isFavorite) "Delete Favorite" else "Tambah Favorite",
+            text = if (isFavorite) "Remove Favorite" else "Add to Favorites",
             modifier = Modifier.padding(start = 8.dp),
             color = TextPrimary,
             style = MaterialTheme.typography.labelMedium

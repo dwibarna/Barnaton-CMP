@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import data.Resource
 import domain.model.TvSeries
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import ui.components.Banner
 import ui.components.HomeSection
 import ui.components.TvSeriesList
@@ -33,14 +32,9 @@ import ui.theme.TextSecondary
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = koinInject(),
+    viewModel: HomeViewModel = koinViewModel(),
     navigateToDetail: ((Int) -> Unit)? = null
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.getAllOnAir()
-        viewModel.getAllPopular()
-        viewModel.getAllTopRated()
-    }
     val stateOnAir by viewModel.uiStateOnAir.collectAsState()
     val statePopular by viewModel.uiStatePopular.collectAsState()
     val stateTopRated by viewModel.uiStateTopRated.collectAsState()
@@ -116,7 +110,7 @@ private fun SectionLoading() {
 @Composable
 private fun SectionError(message: String?) {
     Text(
-        text = message ?: "Error tidak diketahui",
+        text = message ?: "Unknown error",
         color = TextSecondary,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     )

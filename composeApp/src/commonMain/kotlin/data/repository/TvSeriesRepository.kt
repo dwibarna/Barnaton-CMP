@@ -12,7 +12,6 @@ import domain.model.TvSeries
 import domain.model.TvVideo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import utils.DataMapper
@@ -91,16 +90,11 @@ class TvSeriesRepositoryImpl(
         }.asFlow()
     }
 
-    override fun getDetailFavorite(id: Int): Flow<Resource<TvDetailSeries>> {
-        return flow {
-            emit(Resource.Loading())
-            flow { emit(remoteDataSource.getDetailTvSeries(id)) }.let {
-                when (val apiResponse = it.first()) {
-                    is Result.Error -> emit(Resource.Error(message = apiResponse.error.toString()))
-                    is Result.Success -> emit(Resource.Success(DataMapper.tvDetailResponseToDomain(apiResponse.data)))
-                }
-            }
-
+    override fun getDetailFavorite(id: Int): Flow<Resource<TvDetailSeries>> = flow {
+        emit(Resource.Loading())
+        when (val apiResponse = remoteDataSource.getDetailTvSeries(id)) {
+            is Result.Error -> emit(Resource.Error(message = apiResponse.error.toString()))
+            is Result.Success -> emit(Resource.Success(DataMapper.tvDetailResponseToDomain(apiResponse.data)))
         }
     }
 
@@ -129,6 +123,8 @@ class TvSeriesRepositoryImpl(
 
     override suspend fun getSearchTvSeries(query: String): Flow<Resource<List<TvSeries>>> {
         return object : NetworkBoundResource<List<TvSeries>, TvSeriesResponse>() {
+            override fun hasCachedData(data: List<TvSeries>?): Boolean = false
+
             override fun loadFromDB(): Flow<List<TvSeries>> {
                 return localDataSource.getAllTvSeries(typeEntity = TypeEntity.OTHER.value)
                     .map(DataMapper::tvEntityToDomain)

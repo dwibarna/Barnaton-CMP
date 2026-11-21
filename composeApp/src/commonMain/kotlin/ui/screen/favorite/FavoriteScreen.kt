@@ -7,14 +7,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import data.Resource
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import ui.components.HomeSection
 import ui.components.TvSeriesFavoriteList
 import ui.theme.DarkBackground
@@ -22,13 +21,10 @@ import ui.theme.TextSecondary
 
 @Composable
 fun FavoriteScreen(
-    viewModel: FavoriteViewModel = koinInject(),
+    viewModel: FavoriteViewModel = koinViewModel(),
     modifier: Modifier = Modifier,
     navigateToDetail: ((Int) -> Unit)? = null
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.getAllTvFavorite()
-    }
     val stateUi by viewModel.uiState.collectAsState()
 
     Box(
@@ -39,7 +35,7 @@ fun FavoriteScreen(
         HomeSection(title = "TV Series Favorite", modifier = Modifier.fillMaxSize()) {
             when (stateUi) {
                 is Resource.Error -> Text(
-                    text = stateUi.message ?: "Error tidak diketahui",
+                    text = stateUi.message ?: "Unknown error",
                     color = TextSecondary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                 )
