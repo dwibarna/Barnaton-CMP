@@ -7,7 +7,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerializationException
@@ -26,21 +28,34 @@ class RemoteDataSource(private val httpClient: HttpClient) {
                 parameter("api_key", AppConfig.TMDB_API_KEY)
                 queryParams.forEach { (key, value) -> parameter(key, value) }
             }
-        } catch (e: UnresolvedAddressException) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: UnresolvedAddressException) {
             return Results.Error(NetworkError.NO_INTERNET)
-        } catch (e: SerializationException) {
+        } catch (_: SerializationException) {
             return Results.Error(NetworkError.SERIALIZATION)
+        } catch (_: Exception) {
+            return Results.Error(NetworkError.UNKNOWN)
         }
 
-        return when (response.status.value) {
-            in 200..299 -> Results.Success(response.body<T>())
-            401 -> Results.Error(NetworkError.UNAUTHORIZED)
-            408 -> Results.Error(NetworkError.REQUEST_TIMEOUT)
-            409 -> Results.Error(NetworkError.CONFLICT)
-            413 -> Results.Error(NetworkError.PAYLOAD_TOO_LARGE)
-            in 500..599 -> Results.Error(NetworkError.SERVER_ERROR)
-            else -> Results.Error(NetworkError.UNKNOWN)
+        return mapResponse(response)
+    }
+
+    private suspend inline fun <reified T> mapResponse(
+        response: HttpResponse
+    ): Results<T, NetworkError> = when (response.status.value) {
+        in 200..299 -> try {
+            Results.Success(response.body<T>())
+        } catch (_: SerializationException) {
+            Results.Error(NetworkError.SERIALIZATION)
         }
+        401 -> Results.Error(NetworkError.UNAUTHORIZED)
+        408 -> Results.Error(NetworkError.REQUEST_TIMEOUT)
+        409 -> Results.Error(NetworkError.CONFLICT)
+        413 -> Results.Error(NetworkError.PAYLOAD_TOO_LARGE)
+        429 -> Results.Error(NetworkError.TOO_MANY_REQUESTS)
+        in 500..599 -> Results.Error(NetworkError.SERVER_ERROR)
+        else -> Results.Error(NetworkError.UNKNOWN)
     }
 
     suspend fun getTopRated(): Results<TvSeriesResponse, NetworkError> =

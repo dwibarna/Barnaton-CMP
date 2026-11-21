@@ -9,9 +9,6 @@ import domain.usecase.TvSeriesUseCase
 import domain.usecase.TvSeriesUseCaseImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
@@ -21,12 +18,12 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
-import ui.screen.home.HomeViewModel
+import org.koin.mp.KoinPlatform
 import ui.screen.detail.DetailViewModel
 import ui.screen.favorite.FavoriteViewModel
+import ui.screen.home.HomeViewModel
 
 expect fun platformModule(): Module
-
 
 val networkModule = module {
     single {
@@ -34,16 +31,8 @@ val networkModule = module {
             install(ContentNegotiation) {
                 json(json = Json { ignoreUnknownKeys = true }, contentType = ContentType.Any)
             }
-            expectSuccess = true
+            expectSuccess = false
             install(WebSockets)
-            install(Logging) {
-                level = LogLevel.HEADERS
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        println(message)
-                    }
-                }
-            }
         }
     }
     single { WatchRoomSocketClient(get()) }
@@ -65,7 +54,8 @@ val viewModelModule = module {
     viewModelOf(::DetailViewModel)
 }
 
-fun initKoin(config: KoinAppDeclaration? = null) =
+fun initKoin(config: KoinAppDeclaration? = null) {
+    if (KoinPlatform.getKoinOrNull() != null) return
     startKoin {
         config?.invoke(this)
         modules(
@@ -76,3 +66,4 @@ fun initKoin(config: KoinAppDeclaration? = null) =
             viewModelModule
         )
     }
+}
